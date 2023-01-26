@@ -1,6 +1,8 @@
 package main
 
-import "github.com/bonzzy/teltech-go-challenge/setup"
+import (
+	"github.com/bonzzy/teltech-go-challenge/setup"
+)
 
 func main() {
 	router := setup.SetupRouter()

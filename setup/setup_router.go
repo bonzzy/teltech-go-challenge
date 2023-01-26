@@ -10,7 +10,7 @@ func SetupRouter() *gin.Engine {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	router.GET("/healthz", controllers.HealthCheck)
+	router.GET("/healthz", controllers.Healthz)
 
 	return router
 }
