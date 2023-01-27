@@ -9,18 +9,43 @@ import (
 	"testing"
 )
 
-func TestAdd(t *testing.T) {
-	x := 1.0
-	y := 1.0
-	answer := 2.0
-	path := fmt.Sprintf("/add?x=%f&y=%f", x, y)
-	w := helpers.PerformRequest(controllers.Add, "GET", path)
+type testCaseExpected struct {
+	answer float64
+	cached bool
+}
+type testCase struct {
+	x        float64
+	y        float64
+	action   string
+	expected testCaseExpected
+}
 
-	expected, err := json.Marshal(controllers.Response{Action: "add", X: x, Y: y, Answer: answer, Cached: false})
-
-	if err != nil {
-		panic(err)
+func TestMathOperations(t *testing.T) {
+	testCases := []testCase{
+		{
+			x:        1.0,
+			y:        1.0,
+			action:   "add",
+			expected: testCaseExpected{answer: 2.0, cached: false},
+		},
+		{
+			x:        1.0,
+			y:        -500.0,
+			action:   "add",
+			expected: testCaseExpected{answer: -499.0, cached: false},
+		},
 	}
 
-	assert.Equal(t, string(expected)+"\n", w.Body.String())
+	for _, testCase := range testCases {
+		path := fmt.Sprintf("/add?x=%f&y=%f", testCase.x, testCase.y)
+		w := helpers.PerformRequest(controllers.Add, "GET", path)
+
+		expected, err := json.Marshal(controllers.Response{Action: testCase.action, X: testCase.x, Y: testCase.y, Answer: testCase.expected.answer, Cached: testCase.expected.cached})
+
+		if err != nil {
+			panic(err)
+		}
+
+		assert.Equal(t, string(expected)+"\n", w.Body.String())
+	}
 }

@@ -9,6 +9,12 @@ import (
 func PerformRequest(handler core.Handler[any], method, path string) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, nil)
 	w := httptest.NewRecorder()
-	core.GetHttpHandler(handler)(w, req)
+
+	routeConfig := core.TinyGinRoute{
+		Route:      path,
+		HttpMethod: method,
+		Handler:    handler,
+	}
+	core.GetHttpHandler([]core.TinyGinRoute{routeConfig})(w, req)
 	return w
 }
