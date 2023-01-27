@@ -5,10 +5,6 @@ import (
 )
 
 func main() {
-	router := setup.SetupRouter()
-
-	err := router.Run("localhost:8000")
-	if err != nil {
-		return
-	}
+	tinyGinServer := setup.RouterSetup()
+	tinyGinServer.Run()
 }

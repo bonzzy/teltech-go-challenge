@@ -2,15 +2,17 @@ package setup
 
 import (
 	"github.com/bonzzy/teltech-go-challenge/controllers"
-	"github.com/gin-gonic/gin"
+	"github.com/bonzzy/teltech-go-challenge/core"
 )
 
-func SetupRouter() *gin.Engine {
-	router := gin.Default()
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
+func RouterSetup() core.TinyGinServer {
+	tinyGinServer := core.NewTinyGin(8000)
+	tinyGinServer.Get("/healthz", controllers.Healthz)
+	tinyGinServer.Get("/add", controllers.Add)
+	tinyGinServer.Get("/substract", controllers.Subtract)
+	tinyGinServer.Get("/multiply", controllers.Multiply)
+	tinyGinServer.Get("/divide", controllers.Divide)
 
-	router.GET("/healthz", controllers.Healthz)
-
-	return router
+	tinyGinServer.Run()
+	return tinyGinServer
 }

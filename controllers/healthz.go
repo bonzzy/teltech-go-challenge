@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/bonzzy/teltech-go-challenge/core"
 	"net/http"
 )
 
@@ -9,7 +9,6 @@ type AppHealth struct {
 	Up bool `json:"up"`
 }
 
-func Healthz(c *gin.Context) {
-	healthCheckValue := AppHealth{Up: true}
-	c.JSON(http.StatusOK, healthCheckValue)
+func Healthz(_ core.Request) core.Response {
+	return core.Response{Data: AppHealth{Up: true}, HttpStatus: http.StatusOK}
 }
