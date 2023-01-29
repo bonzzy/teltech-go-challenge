@@ -2,15 +2,21 @@ package controllers
 
 import (
 	"github.com/bonzzy/teltech-go-challenge/core"
-	"math/bits"
+	"math/big"
 	"net/http"
-	"strconv"
 )
 
-// https://github.com/go-playground/validator
 type MathParams struct {
-	X float64 `json:"x" form:"x" binding:"required,number"`
-	Y float64 `json:"y" form:"y" binding:"required,number"`
+	X *big.Float `json:"x" form:"x" binding:"required,number"`
+	Y *big.Float `json:"y" form:"y" binding:"required,number"`
+}
+
+type ResponseBigFloat struct {
+	Action string     `json:"action"`
+	X      *big.Float `json:"x"`
+	Y      *big.Float `json:"y"`
+	Answer float64    `json:"answer"`
+	Cached bool       `json:"cached"`
 }
 
 type Response struct {
@@ -21,36 +27,46 @@ type Response struct {
 	Cached bool    `json:"cached"`
 }
 
+func ValidateQueryXY(query map[string][]string) (bool, string) {
+	if len(query["x"]) == 0 || !core.IsNumber(query["x"][0]) {
+		return false, "x needs to be a number!"
+	}
+	if len(query["y"]) == 0 || !core.IsNumber(query["y"][0]) {
+		return false, "y needs to be a number!"
+	}
+
+	return true, ""
+}
+
+func GetBigXYFromQuery(query map[string][]string) (*big.Float, *big.Float) {
+	x, _, _ := new(big.Float).SetPrec(256).Parse(query["x"][0], 10)
+	y, _, _ := new(big.Float).SetPrec(256).Parse(query["y"][0], 10)
+
+	return x, y
+}
+
 // TODO implement cache, every cache hit needs to refresh the expiration time
 // should expire anything that wasn't hit for a min
 func Add(request core.Request) core.Response {
-	var x, y float64
-	if len(request.Query["x"]) > 0 {
-		x, _ = strconv.ParseFloat(request.Query["x"][0], bits.UintSize)
-	} else {
-		// throw
-		return core.Response{HttpStatus: http.StatusBadRequest}
+	roundDecimalPrecision := 16.0
+
+	validation, err := ValidateQueryXY(request.Query)
+
+	if !validation {
+		return core.Response{HttpStatus: http.StatusBadRequest, Data: err}
 	}
 
-	if len(request.Query["y"]) > 0 {
-		y, _ = strconv.ParseFloat(request.Query["y"][0], bits.UintSize)
-	} else {
-		// throw
-		return core.Response{HttpStatus: http.StatusBadRequest}
-	}
+	x, y := GetBigXYFromQuery(request.Query)
 
-	params := MathParams{
-		X: x,
-		Y: y,
-	}
-	// Validation
-	// return http.StatusBadRequest if validation fails
+	answer, _ := new(big.Float).SetPrec(256).Add(x, y).SetPrec(256).Float64()
+	givenX, _ := new(big.Float).Set(x).SetPrec(256).Float64()
+	givenY, _ := new(big.Float).Set(y).SetPrec(256).Float64()
 
 	response := Response{
 		Action: "add",
-		X:      params.X,
-		Y:      params.Y,
-		Answer: params.Y + params.X,
+		X:      core.Round(givenX, roundDecimalPrecision),
+		Y:      core.Round(givenY, roundDecimalPrecision),
+		Answer: core.Round(answer, roundDecimalPrecision),
 		Cached: false,
 	}
 
@@ -58,31 +74,23 @@ func Add(request core.Request) core.Response {
 }
 
 func Subtract(request core.Request) core.Response {
-	var x, y float64
-	if len(request.Query["x"]) > 0 {
-		x, _ = strconv.ParseFloat(request.Query["x"][0], bits.UintSize)
-	} else {
-		// throw
-		return core.Response{HttpStatus: http.StatusBadRequest}
+	validation, err := ValidateQueryXY(request.Query)
+
+	if !validation {
+		return core.Response{HttpStatus: http.StatusBadRequest, Data: err}
 	}
 
-	if len(request.Query["y"]) > 0 {
-		y, _ = strconv.ParseFloat(request.Query["y"][0], bits.UintSize)
-	} else {
-		// throw
-		return core.Response{HttpStatus: http.StatusBadRequest}
-	}
+	x, y := GetBigXYFromQuery(request.Query)
 
-	params := MathParams{
-		X: x,
-		Y: y,
-	}
+	answer, _ := new(big.Float).SetPrec(256).Sub(x, y).SetPrec(256).Float64()
+	givenX, _ := new(big.Float).Set(x).SetPrec(256).Float64()
+	givenY, _ := new(big.Float).Set(y).SetPrec(256).Float64()
 
 	response := Response{
 		Action: "subtract",
-		X:      params.X,
-		Y:      params.Y,
-		Answer: params.X - params.Y,
+		X:      givenX,
+		Y:      givenY,
+		Answer: answer,
 		Cached: false,
 	}
 
@@ -90,31 +98,23 @@ func Subtract(request core.Request) core.Response {
 }
 
 func Multiply(request core.Request) core.Response {
-	var x, y float64
-	if len(request.Query["x"]) > 0 {
-		x, _ = strconv.ParseFloat(request.Query["x"][0], bits.UintSize)
-	} else {
-		// throw
-		return core.Response{HttpStatus: http.StatusBadRequest}
+	validation, err := ValidateQueryXY(request.Query)
+
+	if !validation {
+		return core.Response{HttpStatus: http.StatusBadRequest, Data: err}
 	}
 
-	if len(request.Query["y"]) > 0 {
-		y, _ = strconv.ParseFloat(request.Query["y"][0], bits.UintSize)
-	} else {
-		// throw
-		return core.Response{HttpStatus: http.StatusBadRequest}
-	}
+	x, y := GetBigXYFromQuery(request.Query)
 
-	params := MathParams{
-		X: x,
-		Y: y,
-	}
+	answer, _ := new(big.Float).SetPrec(256).Mul(x, y).SetPrec(256).Float64()
+	givenX, _ := new(big.Float).Set(x).SetPrec(256).Float64()
+	givenY, _ := new(big.Float).Set(y).SetPrec(256).Float64()
 
 	response := Response{
 		Action: "multiply",
-		X:      params.X,
-		Y:      params.Y,
-		Answer: params.X * params.Y,
+		X:      givenX,
+		Y:      givenY,
+		Answer: answer,
 		Cached: false,
 	}
 
@@ -123,31 +123,23 @@ func Multiply(request core.Request) core.Response {
 }
 
 func Divide(request core.Request) core.Response {
-	var x, y float64
-	if len(request.Query["x"]) > 0 {
-		x, _ = strconv.ParseFloat(request.Query["x"][0], bits.UintSize)
-	} else {
-		// throw
-		return core.Response{HttpStatus: http.StatusBadRequest}
+	validation, err := ValidateQueryXY(request.Query)
+
+	if !validation {
+		return core.Response{HttpStatus: http.StatusBadRequest, Data: err}
 	}
 
-	if len(request.Query["y"]) > 0 {
-		y, _ = strconv.ParseFloat(request.Query["y"][0], bits.UintSize)
-	} else {
-		// throw
-		return core.Response{HttpStatus: http.StatusBadRequest}
-	}
+	x, y := GetBigXYFromQuery(request.Query)
 
-	params := MathParams{
-		X: x,
-		Y: y,
-	}
+	answer, _ := new(big.Float).SetPrec(256).Quo(x, y).SetPrec(256).Float64()
+	givenX, _ := new(big.Float).Set(x).SetPrec(256).Float64()
+	givenY, _ := new(big.Float).Set(y).SetPrec(256).Float64()
 
 	response := Response{
 		Action: "divide",
-		X:      params.X,
-		Y:      params.Y,
-		Answer: params.X / params.Y,
+		X:      givenX,
+		Y:      givenY,
+		Answer: answer,
 		Cached: false,
 	}
 
