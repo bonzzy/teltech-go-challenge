@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bonzzy/teltech-go-challenge/controllers"
+	"github.com/bonzzy/teltech-go-challenge/core"
 	"github.com/bonzzy/teltech-go-challenge/tests/helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -21,7 +22,7 @@ type testCase struct {
 }
 
 func TestMathOperations(t *testing.T) {
-	testCases := []testCase{
+	simpleTestCases := []testCase{
 		{
 			x:        1.0,
 			y:        1.0,
@@ -30,15 +31,35 @@ func TestMathOperations(t *testing.T) {
 		},
 		{
 			x:        1.0,
-			y:        -500.0,
+			y:        -500.5,
 			action:   "add",
-			expected: testCaseExpected{answer: -499.0, cached: false},
+			expected: testCaseExpected{answer: -499.5, cached: false},
+		},
+		{
+			x:        2.0,
+			y:        1.0,
+			action:   "subtract",
+			expected: testCaseExpected{answer: 1.0, cached: false},
+		},
+		// test float problem
+		{
+			x:        -2.3,
+			y:        -2.4,
+			action:   "subtract",
+			expected: testCaseExpected{answer: 0.1, cached: false},
 		},
 	}
+	testCases := append(simpleTestCases)
 
 	for _, testCase := range testCases {
-		path := fmt.Sprintf("/add?x=%f&y=%f", testCase.x, testCase.y)
-		w := helpers.PerformRequest(controllers.Add, "GET", path)
+		handle := getHandle(testCase.action)
+
+		if handle == nil {
+			panic(fmt.Sprintf("Handle for action %s not found!", testCase.action))
+		}
+
+		path := fmt.Sprintf("/%s?x=%f&y=%f", testCase.action, testCase.x, testCase.y)
+		w := helpers.PerformRequest(handle, "GET", path)
 
 		expected, err := json.Marshal(controllers.Response{Action: testCase.action, X: testCase.x, Y: testCase.y, Answer: testCase.expected.answer, Cached: testCase.expected.cached})
 
@@ -48,4 +69,19 @@ func TestMathOperations(t *testing.T) {
 
 		assert.Equal(t, string(expected)+"\n", w.Body.String())
 	}
+}
+
+func getHandle(action string) core.Handler[any] {
+	switch action {
+	case "add":
+		return controllers.Add
+	case "subtract":
+		return controllers.Subtract
+	case "multiply":
+		return controllers.Multiply
+	case "divide":
+		return controllers.Divide
+	}
+
+	return nil
 }
