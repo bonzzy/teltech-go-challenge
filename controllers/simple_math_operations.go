@@ -48,7 +48,7 @@ func GetBigXYFromQuery(query map[string][]string) (*big.Float, *big.Float) {
 // TODO implement cache, every cache hit needs to refresh the expiration time
 // should expire anything that wasn't hit for a min
 func Add(request core.Request) core.Response {
-	roundDecimalPrecision := 16.0
+	roundDecimalPrecision := 32.0
 
 	validation, err := ValidateQueryXY(request.Query)
 
@@ -58,14 +58,14 @@ func Add(request core.Request) core.Response {
 
 	x, y := GetBigXYFromQuery(request.Query)
 
-	answer, _ := new(big.Float).SetPrec(256).Add(x, y).SetPrec(256).Float64()
+	answer, _ := new(big.Float).Add(x, y).SetPrec(256).Float64()
 	givenX, _ := new(big.Float).Set(x).SetPrec(256).Float64()
 	givenY, _ := new(big.Float).Set(y).SetPrec(256).Float64()
 
 	response := Response{
 		Action: "add",
-		X:      core.Round(givenX, roundDecimalPrecision),
-		Y:      core.Round(givenY, roundDecimalPrecision),
+		X:      givenX,
+		Y:      givenY,
 		Answer: core.Round(answer, roundDecimalPrecision),
 		Cached: false,
 	}
@@ -74,6 +74,7 @@ func Add(request core.Request) core.Response {
 }
 
 func Subtract(request core.Request) core.Response {
+	roundDecimalPrecision := 16.0
 	validation, err := ValidateQueryXY(request.Query)
 
 	if !validation {
@@ -90,7 +91,7 @@ func Subtract(request core.Request) core.Response {
 		Action: "subtract",
 		X:      givenX,
 		Y:      givenY,
-		Answer: answer,
+		Answer: core.Round(answer, roundDecimalPrecision),
 		Cached: false,
 	}
 
@@ -98,6 +99,7 @@ func Subtract(request core.Request) core.Response {
 }
 
 func Multiply(request core.Request) core.Response {
+	roundDecimalPrecision := 16.0
 	validation, err := ValidateQueryXY(request.Query)
 
 	if !validation {
@@ -114,7 +116,7 @@ func Multiply(request core.Request) core.Response {
 		Action: "multiply",
 		X:      givenX,
 		Y:      givenY,
-		Answer: answer,
+		Answer: core.Round(answer, roundDecimalPrecision),
 		Cached: false,
 	}
 
@@ -123,6 +125,7 @@ func Multiply(request core.Request) core.Response {
 }
 
 func Divide(request core.Request) core.Response {
+	roundDecimalPrecision := 16.0
 	validation, err := ValidateQueryXY(request.Query)
 
 	if !validation {
@@ -130,6 +133,10 @@ func Divide(request core.Request) core.Response {
 	}
 
 	x, y := GetBigXYFromQuery(request.Query)
+
+	if y.Cmp(big.NewFloat(0)) == 0 {
+		return core.Response{HttpStatus: http.StatusBadRequest}
+	}
 
 	answer, _ := new(big.Float).SetPrec(256).Quo(x, y).SetPrec(256).Float64()
 	givenX, _ := new(big.Float).Set(x).SetPrec(256).Float64()
@@ -139,7 +146,7 @@ func Divide(request core.Request) core.Response {
 		Action: "divide",
 		X:      givenX,
 		Y:      givenY,
-		Answer: answer,
+		Answer: core.Round(answer, roundDecimalPrecision),
 		Cached: false,
 	}
 
