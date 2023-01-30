@@ -105,7 +105,7 @@ func TestMathOperations(t *testing.T) {
 			x:        "0.12345678912345",
 			y:        "0.987654321987654321",
 			action:   "add",
-			expected: testCaseExpected{answer: 1.11111111111111110, x: 0.12345678912345, y: 0.987654321987654321, cached: false},
+			expected: testCaseExpected{answer: 1.1111111111111043, x: 0.12345678912345, y: 0.9876543219876543, cached: false},
 			message:  "Decimal place rounding",
 		},
 	}

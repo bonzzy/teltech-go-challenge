@@ -39,8 +39,8 @@ func ValidateQueryXY(query map[string][]string) (bool, string) {
 }
 
 func GetBigXYFromQuery(query map[string][]string) (*big.Float, *big.Float) {
-	x, _, _ := new(big.Float).SetPrec(256).Parse(query["x"][0], 10)
-	y, _, _ := new(big.Float).SetPrec(256).Parse(query["y"][0], 10)
+	x, _, _ := new(big.Float).SetPrec(256).SetMode(big.ToZero).Parse(query["x"][0], 10)
+	y, _, _ := new(big.Float).SetPrec(256).SetMode(big.ToZero).Parse(query["y"][0], 10)
 
 	return x, y
 }
@@ -74,7 +74,6 @@ func Add(request core.Request) core.Response {
 }
 
 func Subtract(request core.Request) core.Response {
-	roundDecimalPrecision := 16.0
 	validation, err := ValidateQueryXY(request.Query)
 
 	if !validation {
@@ -91,7 +90,7 @@ func Subtract(request core.Request) core.Response {
 		Action: "subtract",
 		X:      givenX,
 		Y:      givenY,
-		Answer: core.Round(answer, roundDecimalPrecision),
+		Answer: answer,
 		Cached: false,
 	}
 
@@ -121,7 +120,6 @@ func Multiply(request core.Request) core.Response {
 	}
 
 	return core.Response{Data: response, HttpStatus: http.StatusOK}
-
 }
 
 func Divide(request core.Request) core.Response {
