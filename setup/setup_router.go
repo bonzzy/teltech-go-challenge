@@ -3,14 +3,16 @@ package setup
 import (
 	"github.com/bonzzy/teltech-go-challenge/controllers"
 	"github.com/bonzzy/teltech-go-challenge/core"
+	"github.com/bonzzy/teltech-go-challenge/dtos"
+	"github.com/bonzzy/teltech-go-challenge/middleware"
 )
 
 func RouterSetup() core.TinyGinServer {
 	tinyGinServer := core.NewTinyGin(8000)
 	tinyGinServer.Get("/healthz", controllers.Healthz)
-	tinyGinServer.Get("/add", controllers.CacheWrapper(controllers.Add, controllers.Response{}))
-	tinyGinServer.Get("/subtract", controllers.CacheWrapper(controllers.Subtract, controllers.Response{}))
-	tinyGinServer.Get("/multiply", controllers.CacheWrapper(controllers.Multiply, controllers.Response{}))
-	tinyGinServer.Get("/divide", controllers.CacheWrapper(controllers.Divide, controllers.Response{}))
+	tinyGinServer.Get("/add", middleware.CacheWrapper(controllers.Add, dtos.Response{}))
+	tinyGinServer.Get("/subtract", middleware.CacheWrapper(controllers.Subtract, dtos.Response{}))
+	tinyGinServer.Get("/multiply", middleware.CacheWrapper(controllers.Multiply, dtos.Response{}))
+	tinyGinServer.Get("/divide", middleware.CacheWrapper(controllers.Divide, dtos.Response{}))
 	return tinyGinServer
 }

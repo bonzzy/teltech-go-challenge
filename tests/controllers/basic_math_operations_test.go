@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"github.com/bonzzy/teltech-go-challenge/controllers"
 	"github.com/bonzzy/teltech-go-challenge/core"
-	"github.com/bonzzy/teltech-go-challenge/tests/helpers"
+	"github.com/bonzzy/teltech-go-challenge/dtos"
+	"github.com/bonzzy/teltech-go-challenge/tests/test_helpers"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -119,9 +120,9 @@ func TestMathOperations(t *testing.T) {
 		}
 
 		path := fmt.Sprintf("/%s?x=%s&y=%s", testCase.action, testCase.x, testCase.y)
-		w := helpers.PerformRequest(handle, "GET", path)
+		w := test_helpers.PerformRequest(handle, "GET", path)
 
-		expected, err := json.Marshal(controllers.Response{Action: testCase.action, X: testCase.expected.x, Y: testCase.expected.y, Answer: testCase.expected.answer, Cached: testCase.expected.cached})
+		expected, err := json.Marshal(dtos.Response{Action: testCase.action, X: testCase.expected.x, Y: testCase.expected.y, Answer: testCase.expected.answer, Cached: testCase.expected.cached})
 
 		if err != nil {
 			panic(err)

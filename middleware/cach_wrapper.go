@@ -1,17 +1,17 @@
-package controllers
+package middleware
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/bonzzy/teltech-go-challenge/core"
+	"github.com/bonzzy/teltech-go-challenge/dtos"
 	"github.com/bonzzy/teltech-go-challenge/services"
 	"net/http"
 	"sort"
 )
 
-func CacheWrapper(controllerHandler core.Handler[any], responseType Response) func(request core.Request) core.Response {
+func CacheWrapper(controllerHandler core.Handler[any], responseType dtos.Response) func(request core.Request) core.Response {
 	return func(request core.Request) core.Response {
-		// TODO focus on only x and y query param as per given task
 		cacheKey := getCacheKeyFromQuery(request.Query)
 
 		fmt.Println(fmt.Sprintf("Cache key: %s", cacheKey))

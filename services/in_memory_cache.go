@@ -11,7 +11,13 @@ func GetCache() *bigcache.BigCache {
 	if Cache != nil {
 		return Cache
 	}
-	Cache, _ = bigcache.NewBigCache(bigcache.DefaultConfig(time.Minute))
+
+	CacheConfig := bigcache.DefaultConfig(time.Minute)
+	// Check what needs to be evicted every 1Second
+	// meaning that it might pass max minute and 1 second to evict the value instead of exactly 1 min
+	// BigCache advises not to set < 1 Second
+	CacheConfig.CleanWindow = time.Second
+	Cache, _ = bigcache.NewBigCache(CacheConfig)
 
 	return Cache
 }

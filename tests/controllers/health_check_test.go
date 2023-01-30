@@ -3,13 +3,13 @@ package test
 import (
 	"encoding/json"
 	"github.com/bonzzy/teltech-go-challenge/controllers"
-	"github.com/bonzzy/teltech-go-challenge/tests/helpers"
+	"github.com/bonzzy/teltech-go-challenge/tests/test_helpers"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestHealthCheck(t *testing.T) {
-	w := helpers.PerformRequest(controllers.Healthz, "GET", "/healthz")
+	w := test_helpers.PerformRequest(controllers.Healthz, "GET", "/healthz")
 
 	expected, err := json.Marshal(controllers.AppHealth{Up: true})
 
