@@ -24,3 +24,5 @@ go test -v ./tests/...
  go build -ldflags '-s -w'
  ./teltech-go-challenge
 ```
+Pushing to the main branch will result in deploying the app to `https://teltech-go.fly.dev/
+`
