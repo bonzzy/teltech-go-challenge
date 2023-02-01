@@ -37,6 +37,9 @@ func CacheWrapper(controllerHandler core.Handler[any], responseType dtos.Respons
 		fmt.Println("Cache miss")
 
 		handlerResponse := controllerHandler(request)
+		if handlerResponse.HttpStatus == http.StatusBadRequest {
+			return handlerResponse
+		}
 
 		handlerResponseJson, _ := json.Marshal(handlerResponse.Data)
 
