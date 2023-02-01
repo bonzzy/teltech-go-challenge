@@ -19,7 +19,7 @@ func Divide(request core.Request) core.Response {
 	x, y := helpers.GetBigXYFromQuery(request.Query)
 
 	if y.Cmp(big.NewFloat(0)) == 0 {
-		return core.Response{HttpStatus: http.StatusBadRequest}
+		return core.Response{HttpStatus: http.StatusBadRequest, Data: "Cannot divide with 0!"}
 	}
 
 	answer, _ := new(big.Float).SetPrec(256).Quo(x, y).SetPrec(256).Float64()
