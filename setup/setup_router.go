@@ -13,6 +13,10 @@ func RouterSetup() core.TinyGinServer {
 	portEnv := os.Getenv("PORT")
 	port, _ := strconv.Atoi(portEnv)
 
+	if port == 0 {
+		port = 8080
+	}
+
 	tinyGinServer := core.NewTinyGin(port)
 	tinyGinServer.Get("/healthz", controllers.Healthz)
 	tinyGinServer.Get("/add", middleware.CacheWrapper(controllers.Add, dtos.Response{}))

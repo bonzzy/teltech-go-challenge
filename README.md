@@ -6,7 +6,7 @@ The app caches results and shows if it was used. Cache items expire if not hit f
 
 ### Run the code
 ```shell
-go run main.go
+PORT=8080 go run main.go
 ```
 
 ### Run the tests
@@ -21,6 +21,6 @@ go test -v ./tests/...
 
 ### Production build and run
 ```shell
- go build
+ go build -ldflags '-s -w'
  ./teltech-go-challenge
 ```
