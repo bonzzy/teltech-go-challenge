@@ -21,14 +21,14 @@ func CacheWrapper(controllerHandler core.Handler[any], responseType dtos.Respons
 			fmt.Println(fmt.Sprintf("Cache Hit: %s", cacheValue))
 
 			err := json.Unmarshal([]byte(cacheValue), &responseType)
-			if err != nil {
-				// panic
-			}
-
-			responseType.Cached = true
-			return core.Response{
-				Data:       responseType,
-				HttpStatus: http.StatusOK,
+			if err == nil {
+				responseType.Cached = true
+				return core.Response{
+					Data:       responseType,
+					HttpStatus: http.StatusOK,
+				}
+			} else {
+				fmt.Println(err)
 			}
 		}
 
