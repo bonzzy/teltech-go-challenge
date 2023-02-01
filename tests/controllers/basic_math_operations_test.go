@@ -133,6 +133,8 @@ func TestMathOperations(t *testing.T) {
 			continue
 		}
 
+		// go json encoder terminates each value with a newline.
+		// https://go.dev/src/encoding/json/stream.go?s=4272:4319
 		assert.Equal(t, string(expected)+"\n", w.Body.String(), testCase.message)
 	}
 }

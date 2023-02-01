@@ -57,7 +57,7 @@ func (e *TinyGinServer) Run() {
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", e.Port), nil)
 	if err != nil {
-		return
+		panic(err)
 	}
 }
 
@@ -74,11 +74,10 @@ func GetHttpHandler(routeConfigList []TinyGinRoute) func(http.ResponseWriter, *h
 			response := routeConfig.Handler(Request{Query: r.URL.Query()})
 			w.WriteHeader(response.HttpStatus)
 			err := json.NewEncoder(w).Encode(response.Data)
+
 			if err != nil {
 				return
 			}
-
-			break
 		}
 	}
 }

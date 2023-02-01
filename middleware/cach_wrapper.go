@@ -25,8 +25,6 @@ func CacheWrapper(controllerHandler core.Handler[any], responseType dtos.Respons
 				// panic
 			}
 
-			fmt.Println(fmt.Sprintf("Cache Hit with unmarshal: %+v", responseType))
-
 			responseType.Cached = true
 			return core.Response{
 				Data:       responseType,
